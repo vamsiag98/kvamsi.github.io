@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>whoami — Machavaram Krishna Vamsi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --border-light: #21262d;
+      --text: #c9d1d9;
+      --text-bright: #f0f6fc;
+      --text-muted: #8b949e;
+      --green: #3fb950;
+      --blue: #58a6ff;
+      --yellow: #e3b341;
+      --purple: #bc8cff;
+      --red: #f78166;
+      --tag-bg: #1c2128;
+      --badge-bg: #0d419d;
+      --badge-border: #1f6feb;
+      --badge-text: #a5c4f3;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px 16px;
+    }
+
+    .container {
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    /* ── TOP NAV ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: 13px;
+      margin-bottom: 28px;
+    }
+    .status-label { color: var(--text-muted); }
+    .status-val   { color: var(--green); }
+    .topbar a {
+      color: var(--blue);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      padding: 2px 10px;
+      border-radius: 4px;
+      transition: background .15s;
+    }
+    .topbar a:hover { background: var(--surface); }
+
+    /* ── TERMINAL WINDOW ── */
+    .term {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .term-bar {
+      background: var(--surface);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #febc2e; }
+    .dot-g { background: #28c840; }
+    .win-title {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin: 0 auto;
+      letter-spacing: .4px;
+    }
+
+    .term-body { padding: 28px 24px; }
+
+    /* ── PROMPT LINE ── */
+    .prompt-line { font-size: 13px; margin-bottom: 4px; }
+    .p-path  { color: var(--green); }
+    .p-dash  { color: var(--text-muted); }
+    .p-role  { color: var(--red); }
+    .p-cmd   { color: var(--text-bright); }
+
+    /* ── SECTION DIVIDER ── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border-light);
+      margin: 22px 0;
+    }
+
+    /* ── WHOAMI OUTPUT ── */
+    .info-row {
+      display: flex;
+      gap: 16px;
+      font-size: 13px;
+      line-height: 2;
+      flex-wrap: wrap;
+    }
+    .info-key  { color: var(--text-muted); min-width: 130px; flex-shrink: 0; }
+    .info-val  { color: var(--text-bright); }
+    .info-val.green  { color: var(--green); }
+    .info-val.blue   { color: var(--blue); }
+    .info-val.yellow { color: var(--yellow); }
+    .info-val.muted  { color: var(--text-muted); }
+
+    .comment {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin: 10px 0 14px;
+    }
+
+    /* ── STATS ROW ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 10px;
+      margin: 16px 0;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px 14px;
+    }
+    .stat-num { font-size: 20px; font-weight: 700; color: var(--green); }
+    .stat-lbl { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+
+    /* ── SECTION HEADING ── */
+    .sec-head {
+      font-size: 12px;
+      color: var(--blue);
+      margin: 18px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    /* ── EXPERIENCE ENTRY ── */
+    .exp-entry { margin: 12px 0; }
+    .exp-title { font-size: 13px; font-weight: 700; color: var(--text-bright); }
+    .exp-sub   { font-size: 11px; color: var(--text-muted); margin: 3px 0 6px; }
+    .bullet {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.85;
+    }
+    .bullet strong { color: var(--yellow); font-weight: 500; }
+
+    /* ── TAGS & BADGES ── */
+    .tag-group { margin: 8px 0 4px; }
+    .tag-label { font-size: 10px; color: var(--text-muted); margin-bottom: 5px; }
+    .tag {
+      display: inline-block;
+      background: var(--tag-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 10.5px;
+      padding: 3px 9px;
+      border-radius: 4px;
+      margin: 3px 3px 3px 0;
+    }
+    .badge {
+      display: inline-block;
+      background: var(--badge-bg);
+      border: 1px solid var(--badge-border);
+      color: var(--badge-text);
+      font-size: 10.5px;
+      padding: 3px 9px;
+      border-radius: 4px;
+      margin: 3px 3px 3px 0;
+    }
+
+    /* ── ACHIEVEMENTS ── */
+    .ach { font-size: 12.5px; line-height: 1.9; color: var(--text-muted); }
+    .ach strong { color: var(--yellow); font-weight: 500; }
+    .ach .tick   { color: var(--green); }
+
+    /* ── CONTACT ── */
+    .contact-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12.5px;
+      line-height: 2;
+    }
+    .contact-k { color: var(--text-muted); min-width: 80px; }
+    .contact-v { color: var(--blue); }
+    .contact-v a { color: var(--blue); text-decoration: none; }
+    .contact-v a:hover { text-decoration: underline; }
+
+    /* ── CURSOR BLINK ── */
+    .cursor {
+      display: inline-block;
+      background: var(--green);
+      width: 9px;
+      height: 15px;
+      vertical-align: middle;
+      animation: blink 1.1s step-end infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 520px) {
+      .info-key { min-width: 100px; }
+      .term-body { padding: 18px 14px; }
+      body { padding: 12px 8px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- top status bar -->
+  <div class="topbar">
+    <span class="status-label">vamsi@accounts ~ status:</span>
+    <span class="status-val">open to opportunities</span>
+    <a href="#experience">experience</a>
+    <a href="#skills">skills</a>
+    <a href="#achievements">achievements</a>
+    <a href="#contact">contact</a>
+  </div>
+
+  <div class="term">
+    <div class="term-bar">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+      <span class="win-title">vamsi@ca-firm — accounts — 80×24</span>
+    </div>
+    <div class="term-body">
+
+      <!-- whoami -->
+      <div class="prompt-line">
+        <span class="p-path">vamsi@ca-firm</span>
+        <span class="p-dash"> — </span>
+        <span class="p-role">accounts</span>
+        <span class="p-dash"> — 80×24</span>
+      </div>
+      <div class="prompt-line" style="margin-bottom:16px;">
+        <span style="color:var(--blue);">$ </span><span class="p-cmd">whoami</span>
+      </div>
+
+      <div>
+        <div class="info-row"><span class="info-key">name</span><span class="info-val">Machavaram Krishna Vamsi</span></div>
+        <div class="info-row"><span class="info-key">role</span><span class="info-val">Senior Accountant · CA Final · Accounts Expert</span></div>
+        <div class="info-row"><span class="info-key">based_in</span><span class="info-val">Kavali <span class="muted" style="color:var(--text-muted);">· ready to relocate anywhere</span></span></div>
+        <div class="info-row"><span class="info-key">experience</span><span class="info-val">5+ years in CA audit firms</span></div>
+        <div class="info-row"><span class="info-key">currently</span><span class="info-val green">Pursuing CA Final</span><span class="info-val muted" style="margin-left:8px;color:var(--text-muted);">· B.Com (Hons) — College Topper</span></div>
+      </div>
+
+      <div class="comment">// zero-error ITR & GST filings · Excel VBA automation · full books of accounts</div>
+
+      <div class="stats">
+        <div class="stat-card"><div class="stat-num">5+</div><div class="stat-lbl">years in practice</div></div>
+        <div class="stat-card"><div class="stat-num">3</div><div class="stat-lbl">entity types handled</div></div>
+        <div class="stat-card"><div class="stat-num">CA</div><div class="stat-lbl">Final in progress</div></div>
+        <div class="stat-card"><div class="stat-num">100%</div><div class="stat-lbl">compliance focus</div></div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Summary -->
+      <div class="prompt-line"><span style="color:var(--blue);">$ </span><span class="p-cmd">cat summary.log</span></div>
+      <div class="sec-head">## summary</div>
+      <p style="font-size:12.5px;line-height:1.9;color:var(--text-muted);max-width:680px;">
+        I keep accounts accurate, filings on time, and books clean. Over five years in CA audit firms I've handled the complete accounting lifecycle — <strong style="color:var(--text-bright);font-weight:500;">ITR & GST filings, statutory compliance, financial statement preparation, and books of accounts</strong> — for sole proprietors, partnerships, and companies. I also build Excel VBA tools that eliminate repetitive manual work. Currently advancing towards CA Final while continuing active practice.
+      </p>
+
+      <hr class="divider" />
+
+      <!-- Experience -->
+      <div id="experience">
+        <div class="prompt-line"><span style="color:var(--blue);">$ </span><span class="p-cmd">tail -f experience.log</span></div>
+        <div class="sec-head">## experience</div>
+
+        <div class="exp-entry">
+          <div class="exp-title">Senior Accountant @ CA Audit Firm</div>
+          <div class="exp-sub">active · 2019 — Present &nbsp;·&nbsp; Part-time + Full-time roles</div>
+          <div class="bullet">↳ <strong>ITR filing</strong> for individuals, sole proprietors, partnership firms, and companies</div>
+          <div class="bullet">↳ <strong>GST returns</strong> — GSTR-1, GSTR-3B, annual returns; end-to-end submission</div>
+          <div class="bullet">↳ Drafting replies to <strong>Income Tax & GST notices</strong> with supporting documentation</div>
+          <div class="bullet">↳ Preparing <strong>financial statements</strong> — Profit & Loss, Balance Sheet, Cash Flow statements</div>
+          <div class="bullet">↳ Building <strong>Excel VBA macros</strong> and formulas tailored to accounting workflows</div>
+          <div class="bullet">↳ Full <strong>books of accounts</strong> maintenance in Tally Prime 7.1 (latest version)</div>
+          <div class="bullet">↳ Handling <strong>statutory compliance</strong> and audit support across all entity types</div>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Education -->
+      <div class="prompt-line"><span style="color:var(--blue);">$ </span><span class="p-cmd">cat education.log</span></div>
+      <div class="sec-head">## education</div>
+
+      <div class="exp-entry">
+        <div class="exp-title">CA Final &nbsp;<span style="font-weight:400;color:var(--green);">— Pursuing</span></div>
+        <div class="exp-sub">Institute of Chartered Accountants of India (ICAI)</div>
+      </div>
+      <div class="exp-entry" style="margin-top:10px;">
+        <div class="exp-title">B.Com — Commerce & Computer Applications &nbsp;<span style="font-weight:400;color:var(--yellow);">🏅 College Topper</span></div>
+        <div class="exp-sub">Graduated with distinction · Top rank in batch</div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Skills -->
+      <div id="skills">
+        <div class="prompt-line"><span style="color:var(--blue);">$ </span><span class="p-cmd">cat manifest.yaml</span></div>
+        <div class="sec-head">## skills</div>
+
+        <div class="tag-group">
+          <div class="tag-label">taxation & compliance</div>
+          <span class="badge">ITR Filing</span>
+          <span class="badge">GST Filing</span>
+          <span class="badge">Income Tax Notices</span>
+          <span class="badge">GST Compliance</span>
+          <span class="badge">Tax Audit Support</span>
+        </div>
+
+        <div class="tag-group">
+          <div class="tag-label">financial reporting</div>
+          <span class="tag">Sole Proprietor Accounts</span>
+          <span class="tag">Partnership Firms</span>
+          <span class="tag">Company Financials</span>
+          <span class="tag">P&L Statements</span>
+          <span class="tag">Balance Sheet Prep</span>
+          <span class="tag">Cash Flow Statements</span>
+        </div>
+
+        <div class="tag-group">
+          <div class="tag-label">tools & software</div>
+          <span class="tag">Tally Prime 7.1</span>
+          <span class="tag">Excel VBA Macros</span>
+          <span class="tag">Advanced Excel Formulas</span>
+          <span class="tag">MIS Reports</span>
+          <span class="tag">Books of Accounts</span>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Achievements -->
+      <div id="achievements">
+        <div class="prompt-line"><span style="color:var(--blue);">$ </span><span class="p-cmd">grep -i "success" career_history.log</span></div>
+        <div class="sec-head">## key achievements</div>
+
+        <div class="ach"><span class="tick">✓</span> Graduated as <strong>college topper</strong> in B.Com (Commerce & Computer Applications)</div>
+        <div class="ach"><span class="tick">✓</span> Built <strong>Excel VBA macros</strong> that cut manual accounting processing time significantly</div>
+        <div class="ach"><span class="tick">✓</span> Managed complete books of accounts for <strong>3 entity types</strong> — sole proprietors, partnerships, companies</div>
+        <div class="ach"><span class="tick">✓</span> Zero-error track record in <strong>ITR & GST filings</strong> across 5+ years of practice</div>
+        <div class="ach"><span class="tick">✓</span> Independently drafted responses to <strong>Income Tax & GST notices</strong> with full compliance</div>
+        <div class="ach"><span class="tick">✓</span> Expert-level proficiency in <strong>Tally Prime 7.1</strong> — latest version, all modules</div>
+        <div class="ach"><span class="tick">✓</span> Advancing towards <strong>CA Final</strong> while continuing active client-facing practice</div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Contact -->
+      <div id="contact">
+        <div class="prompt-line"><span style="color:var(--blue);">$ </span><span class="p-cmd">ssh vamsi@reach-out</span></div>
+        <div class="sec-head">## get in touch</div>
+
+        <div class="contact-row"><span class="contact-k">phone</span><span class="contact-v"><a href="tel:+919440915156">+91 94409 15156</a></span></div>
+        <div class="contact-row"><span class="contact-k">email</span><span class="contact-v"><a href="mailto:vamsiag98@gmail.com">vamsiag98@gmail.com</a></span></div>
+        <div class="contact-row"><span class="contact-k">location</span><span class="info-val">Kavali · <span style="color:var(--green);">open to relocation</span></span></div>
+        <div class="contact-row"><span class="contact-k">status</span><span style="color:var(--green);">actively looking</span></div>
+      </div>
+
+      <hr class="divider" />
+
+      <div style="font-size:12px;color:var(--text-muted);">
+        $ exit — <span style="color:var(--green);">connection to vamsi@accounts closed</span> <span class="cursor"></span>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>
